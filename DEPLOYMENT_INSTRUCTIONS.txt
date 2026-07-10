@@ -1,0 +1,49 @@
+# GENEVIEVE App™ Food Safety V15 — No-Guess Safety Mode
+
+This is the clean static full-deployment build.
+
+## Upload to GitHub
+Open the zip, open the folder, select every item inside it, and upload those items to the GitHub repository root.
+
+GitHub root should show:
+- assets
+- index.html
+- styles.css
+- app.js
+- privacy.html
+- terms.html
+- safety.html
+- manifest.webmanifest
+- sw.js
+- robots.txt
+- _redirects
+- netlify.toml
+- vercel.json
+- DEPLOYMENT_INSTRUCTIONS.txt
+
+## Vercel settings
+- Framework Preset: Other
+- Root Directory: ./
+- Install Command: leave blank
+- Build Command: leave blank
+- Output Directory: leave blank or .
+
+No npm, no package.json, no node_modules, no Vite build command.
+
+## Included
+- Pink Genevieve App™ colour system
+- No-Guess Safety Mode
+- Photo proof checklist
+- Optional browser OCR via online script
+- Confidence score
+- Clean food score
+- Strict coeliac blocker
+- Direct dairy blocker
+- Trace dairy = amber
+- Additive caution scoring
+- Meal diary
+- Symptom diary
+- Learning engine
+- Doctor CSV export
+- Pantry board
+- Privacy, terms and safety pages

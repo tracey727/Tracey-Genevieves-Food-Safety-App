@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#c6007e">
+  <meta name="description" content="GENEVIEVE App™ No-Guess Food Safety V15 personal trial for strict label checking, coeliac safety, dairy checks, symptoms and doctor export.">
+  <title>GENEVIEVE App™ Food Safety V15</title>
+  <link rel="icon" href="./assets/genevieve-food-icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="./assets/genevieve-food-icon.svg" alt="">
+        <div>
+          <h1>GENEVIEVE App™</h1>
+          <p>No-Guess Food Safety V15 • Tracey personal trial</p>
+        </div>
+      </div>
+      <button class="top-alert" data-screen="alerts" aria-label="Open alerts">🔔<span></span></button>
+    </header>
+
+    <main>
+      <!-- HOME -->
+      <section class="screen active" id="home">
+        <p class="screen-kicker">Personal safety guard before food gets near you</p>
+        <section class="hero-card">
+          <div>
+            <h2>No-Guess Safety Mode</h2>
+            <p>Genevieve never guesses green. If the label, allergen statement, photo proof, or confidence is not clear enough, the result becomes amber or red.</p>
+          </div>
+          <div id="todayStatus" class="status-orb amber">
+            <strong>AMBER</strong>
+            <span>Not checked</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Quick scan workflow</h3>
+          <p class="helper">Use camera/photos, OCR if available, or paste label text. Photo proof is still required for green.</p>
+          <div class="big-actions">
+            <button data-screen="scan">📷 Check food now</button>
+            <button class="secondary" data-screen="diary">🚽 Log symptoms</button>
+          </div>
+        </section>
+
+        <section class="traffic-grid">
+          <div class="traffic green"><b>Green</b><span>Tracey Safe only when proven.</span></div>
+          <div class="traffic amber"><b>Amber</b><span>Check / uncertain / trace dairy.</span></div>
+          <div class="traffic red"><b>Red</b><span>Do not use: gluten or blocked dairy.</span></div>
+        </section>
+
+        <section class="card">
+          <h3>Today’s personal rules</h3>
+          <div class="rule-line"><span>Strict coeliac blocker</span><b>On</b></div>
+          <div class="rule-line"><span>Direct dairy blocker</span><b>On</b></div>
+          <div class="rule-line"><span>Trace dairy</span><b>Amber warning</b></div>
+          <div class="rule-line"><span>Unclear label</span><b>Never green</b></div>
+          <button data-screen="rules" class="wide secondary">Edit safety rules</button>
+        </section>
+
+        <section class="card warning">
+          <h3>Health note</h3>
+          <p>Daily diarrhoea and fast weight loss need medical help alongside the app. This app supports evidence gathering for your GP or dietitian; it does not diagnose or replace medical care.</p>
+          <button data-screen="export" class="secondary">Prepare doctor export</button>
+        </section>
+      </section>
+
+      <!-- SCAN -->
+      <section class="screen" id="scan">
+        <div class="page-title"><button data-screen="home">←</button><h2>Check Food Now</h2></div>
+        <section class="card">
+          <h3>1. Photo proof required</h3>
+          <p class="helper">Take or upload the ingredients list and allergen statement. Green is blocked unless both proof boxes are ticked.</p>
+          <div class="upload-grid">
+            <label class="upload-box">
+              <input id="ingredientsPhoto" type="file" accept="image/*" capture="environment">
+              <span>📷 Ingredients photo</span>
+              <img id="ingredientsPreview" alt="">
+            </label>
+            <label class="upload-box">
+              <input id="allergenPhoto" type="file" accept="image/*" capture="environment">
+              <span>📷 Allergen statement photo</span>
+              <img id="allergenPreview" alt="">
+            </label>
+          </div>
+          <div class="proof-grid">
+            <label><input type="checkbox" id="proofIngredients"> Ingredients list is clear and complete</label>
+            <label><input type="checkbox" id="proofAllergen"> Allergen statement is clear and complete</label>
+            <label><input type="checkbox" id="proofCurrentLabel"> I checked the physical/current label</label>
+            <label><input type="checkbox" id="proofMine"> This item is mine / safe pantry item, not housemate food</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>2. Read label text</h3>
+          <p class="helper">OCR works in-browser when the online OCR script loads. If it cannot read clearly, Genevieve stays amber/red and asks for proof.</p>
+          <div class="button-row">
+            <button id="runOcrBtn">Try OCR from ingredients photo</button>
+            <button id="clearScanBtn" class="secondary">Clear scan</button>
+          </div>
+          <label>Product name
+            <input id="productName" placeholder="Example: gluten free pasta sauce">
+          </label>
+          <label>Ingredients / label text
+            <textarea id="labelText" placeholder="Paste or OCR ingredients, allergen statement, may contain, preservatives..."></textarea>
+          </label>
+          <label>Barcode / notes
+            <input id="barcodeNotes" placeholder="Optional barcode, store, batch or notes">
+          </label>
+        </section>
+
+        <section class="card">
+          <h3>3. Genevieve decision</h3>
+          <div id="scanResult" class="result-card amber">
+            <strong>Amber — waiting for label proof</strong>
+            <span>Upload photos, tick proof boxes, then run check.</span>
+          </div>
+          <div class="score-row">
+            <div><b id="confidenceScore">0%</b><span>Confidence</span></div>
+            <div><b id="cleanScore">0%</b><span>Clean food score</span></div>
+          </div>
+          <button id="analyseBtn" class="wide">Analyse with No-Guess Mode</button>
+          <button id="saveMealBtn" class="wide secondary">Save to meal diary</button>
+        </section>
+
+        <section class="card">
+          <h3>Detected risks</h3>
+          <div id="detectedRisks" class="risk-list"><p class="helper">No label analysed yet.</p></div>
+        </section>
+      </section>
+
+      <!-- RULES -->
+      <section class="screen" id="rules">
+        <div class="page-title"><button data-screen="home">←</button><h2>Rules</h2></div>
+        <section class="card">
+          <h3>Strict coeliac rules</h3>
+          <p>These trigger red unless the item is clearly marked gluten-free and the cereal source is safe.</p>
+          <div id="glutenTerms" class="chips"></div>
+        </section>
+        <section class="card">
+          <h3>Dairy rules</h3>
+          <label class="toggle-row">Block direct dairy red <input id="blockDairy" type="checkbox" checked></label>
+          <label class="toggle-row">Treat trace dairy / may contain milk as amber <input id="traceDairyAmber" type="checkbox" checked></label>
+          <div id="dairyTerms" class="chips"></div>
+        </section>
+        <section class="card">
+          <h3>Clean-food / additive caution</h3>
+          <p>These do not always mean red, but Genevieve warns and reduces the clean-food score.</p>
+          <div id="additiveTerms" class="chips"></div>
+        </section>
+      </section>
+
+      <!-- DIARY -->
+      <section class="screen" id="diary">
+        <div class="page-title"><button data-screen="home">←</button><h2>Meal & Reaction Diary</h2></div>
+        <section class="card">
+          <h3>Log what happened after eating</h3>
+          <div class="form-grid">
+            <label>Date/time <input id="symptomTime" type="datetime-local"></label>
+            <label>Meal / product <input id="symptomMeal" placeholder="What did you eat?"></label>
+            <label>Bowel count today <input id="bowelCount" type="number" min="0" max="30" value="0"></label>
+            <label>Delay after eating <input id="delayAfter" placeholder="Example: 30 min, 2 hours, next morning"></label>
+          </div>
+          <label>Symptoms
+            <textarea id="symptoms" placeholder="Diarrhoea, stomach pain, nausea, bloating, fatigue, urgency, other..."></textarea>
+          </label>
+          <label>Suspected ingredient / preservative
+            <input id="suspectIngredient" placeholder="Example: sorbate, maltodextrin, onion, milk solids">
+          </label>
+          <button id="saveSymptomBtn" class="wide">Save reaction</button>
+        </section>
+
+        <section class="card">
+          <h3>Saved diary</h3>
+          <div id="diaryList" class="saved-list"></div>
+        </section>
+      </section>
+
+      <!-- LEARNING -->
+      <section class="screen" id="learning">
+        <div class="page-title"><button data-screen="home">←</button><h2>Learning Engine</h2></div>
+        <section class="card">
+          <h3>Repeated suspect patterns</h3>
+          <p class="helper">This personal trial counts repeated suspected ingredients and products from your diary. It is not a medical diagnosis.</p>
+          <div id="learningList" class="saved-list"></div>
+        </section>
+        <section class="card">
+          <h3>How Genevieve learns safely</h3>
+          <ul>
+            <li>It links food, time delay, bowel count and symptoms.</li>
+            <li>It highlights repeated suspected ingredients.</li>
+            <li>It never says “confirmed cause” without medical review.</li>
+            <li>It gives you evidence to take to a GP, gastroenterologist or dietitian.</li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- PANTRY -->
+      <section class="screen" id="pantry">
+        <div class="page-title"><button data-screen="home">←</button><h2>Pantry Board</h2></div>
+        <section class="card">
+          <h3>Pantry safety board</h3>
+          <p>Mark food as mine, shared, housemate, safe, caution or do not use.</p>
+          <div class="form-grid">
+            <label>Item <input id="pantryItem" placeholder="Product name"></label>
+            <label>Status
+              <select id="pantryStatus">
+                <option>Mine — checked safe</option>
+                <option>Mine — amber caution</option>
+                <option>Do not use</option>
+                <option>Shared — check first</option>
+                <option>Housemate — not mine</option>
+              </select>
+            </label>
+          </div>
+          <button id="savePantryBtn" class="wide">Save pantry item</button>
+        </section>
+        <section class="card">
+          <h3>Saved pantry items</h3>
+          <div id="pantryList" class="saved-list"></div>
+        </section>
+      </section>
+
+      <!-- EXPORT -->
+      <section class="screen" id="export">
+        <div class="page-title"><button data-screen="home">←</button><h2>Doctor Export</h2></div>
+        <section class="card">
+          <h3>Export evidence</h3>
+          <p>Download CSV files for your GP, gastroenterologist or dietitian.</p>
+          <div class="big-actions">
+            <button id="exportMealsBtn">Download meal scan CSV</button>
+            <button id="exportSymptomsBtn">Download symptoms CSV</button>
+            <button id="exportPantryBtn" class="secondary">Download pantry CSV</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Emergency flags to discuss</h3>
+          <ul>
+            <li>Daily diarrhoea.</li>
+            <li>Weight loss over a month.</li>
+            <li>Severe pain, dehydration, blood, fever, faintness or unable to keep fluids down needs urgent care.</li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- ALERTS -->
+      <section class="screen" id="alerts">
+        <div class="page-title"><button data-screen="home">←</button><h2>Alerts</h2></div>
+        <section class="card">
+          <h3>Safety alerts</h3>
+          <div class="alert-line red"><b>Red</b><span>Gluten/wheat/barley/rye/malt, direct dairy if blocker on, or housemate/not yours.</span></div>
+          <div class="alert-line amber"><b>Amber</b><span>Trace dairy, blurry label, may contain, preservatives, online-only data or missing allergen panel.</span></div>
+          <div class="alert-line green"><b>Green</b><span>Only when Genevieve can prove the label fits your rules.</span></div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="active" data-screen="home">🏠<span>Home</span></button>
+      <button data-screen="scan">📷<span>Scan</span></button>
+      <button data-screen="diary">🚽<span>Diary</span></button>
+      <button data-screen="learning">🧠<span>Learn</span></button>
+      <button data-screen="pantry">🧺<span>Pantry</span></button>
+      <button data-screen="export">📄<span>Export</span></button>
+      <button data-screen="rules">⚙️<span>Rules</span></button>
+    </nav>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
