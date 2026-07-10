@@ -1,276 +1,53 @@
 <!doctype html>
 <html lang="en-AU">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#c6007e">
-  <meta name="description" content="GENEVIEVE App™ No-Guess Food Safety V15 personal trial for strict label checking, coeliac safety, dairy checks, symptoms and doctor export.">
-  <title>GENEVIEVE App™ Food Safety V15</title>
-  <link rel="icon" href="./assets/genevieve-food-icon.svg" type="image/svg+xml">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#c6007e">
+<title>GENEVIEVE App™ Food Stock Recipe Engine V16</title>
+<link rel="icon" href="./assets/genevieve-food-stock-icon.svg" type="image/svg+xml">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <img src="./assets/genevieve-food-icon.svg" alt="">
-        <div>
-          <h1>GENEVIEVE App™</h1>
-          <p>No-Guess Food Safety V15 • Tracey personal trial</p>
-        </div>
-      </div>
-      <button class="top-alert" data-screen="alerts" aria-label="Open alerts">🔔<span></span></button>
-    </header>
+<div class="app">
+<header class="topbar"><div class="brand"><img src="./assets/genevieve-food-stock-icon.svg" alt=""><div><h1>GENEVIEVE App™</h1><p>Food Stock Recipe Engine V16 • Full deploy</p></div></div><button data-screen="alerts" class="bell">🔔<span id="alertDot"></span></button></header>
+<main>
+<section class="screen active" id="home">
+<p class="kicker">Pantry • Fridge • Recipes • Shopping • No-Guess Safety</p>
+<section class="hero"><div><h2>Food Stock Recipe Engine V16</h2><p>Creates recipes from what is in your cupboard and fridge, lowers stock after recipe use, gives yellow/red alerts, and updates your shopping list.</p></div><div id="homeOrb" class="orb amber"><b>AMBER</b><span>Check stock</span></div></section>
+<section class="lights"><div class="green"><b>Green</b><span>Safe + enough stock</span></div><div class="amber"><b>Yellow</b><span>Low / check first</span></div><div class="red"><b>Red</b><span>Out / do not use</span></div></section>
+<section class="card"><h3>Dashboard</h3><div class="stats"><div><b id="statStock">0</b><span>stock items</span></div><div><b id="statYellow">0</b><span>yellow</span></div><div><b id="statRed">0</b><span>red</span></div><div><b id="statShop">0</b><span>shopping</span></div></div></section>
+<section class="card"><h3>Start</h3><div class="actions"><button data-screen="stock">Add stock</button><button data-screen="recipes" class="secondary">Create recipe</button><button data-screen="shopping" class="secondary">Shopping list</button></div></section>
+<section class="card warn"><h3>No-Guess Safety</h3><p>Red or housemate items are blocked from recipes. Amber items are allowed only with a warning. This does not replace checking the current food label.</p></section>
+</section>
 
-    <main>
-      <!-- HOME -->
-      <section class="screen active" id="home">
-        <p class="screen-kicker">Personal safety guard before food gets near you</p>
-        <section class="hero-card">
-          <div>
-            <h2>No-Guess Safety Mode</h2>
-            <p>Genevieve never guesses green. If the label, allergen statement, photo proof, or confidence is not clear enough, the result becomes amber or red.</p>
-          </div>
-          <div id="todayStatus" class="status-orb amber">
-            <strong>AMBER</strong>
-            <span>Not checked</span>
-          </div>
-        </section>
+<section class="screen" id="stock">
+<div class="title"><button data-screen="home">←</button><h2>Pantry & Fridge Stock</h2></div>
+<section class="card"><h3>Add/update item</h3><div class="grid"><label>Item<input id="itemName" placeholder="Chicken breast"></label><label>Location<select id="itemLocation"><option>Fridge</option><option>Freezer</option><option>Pantry</option><option>Cupboard</option><option>Shared/Housemate</option></select></label><label>Quantity<input id="itemQty" type="number" min="0" step="0.1" value="1"></label><label>Unit<select id="itemUnit"><option>each</option><option>g</option><option>kg</option><option>ml</option><option>L</option><option>cups</option><option>tbsp</option><option>tsp</option><option>serves</option></select></label><label>Yellow alert at<input id="itemYellow" type="number" min="0" step="0.1" value="2"></label><label>Red alert at<input id="itemRed" type="number" min="0" step="0.1" value="0.5"></label></div><label>Safety<select id="itemSafety"><option>Green — Tracey safe</option><option>Amber — check / trace / uncertain</option><option>Red — do not use</option><option>Housemate — not mine</option></select></label><label>Notes<textarea id="itemNotes" placeholder="GF checked, may contain milk, preservative notes..."></textarea></label><button id="saveItem" class="wide">Save item</button></section>
+<section class="card"><h3>Current stock</h3><div class="filters"><button class="active" data-filter="all">All</button><button data-filter="Fridge">Fridge</button><button data-filter="Pantry">Pantry</button><button data-filter="amber">Yellow</button><button data-filter="red">Red</button></div><div id="stockList" class="list"></div></section>
+</section>
 
-        <section class="card">
-          <h3>Quick scan workflow</h3>
-          <p class="helper">Use camera/photos, OCR if available, or paste label text. Photo proof is still required for green.</p>
-          <div class="big-actions">
-            <button data-screen="scan">📷 Check food now</button>
-            <button class="secondary" data-screen="diary">🚽 Log symptoms</button>
-          </div>
-        </section>
+<section class="screen" id="recipes">
+<div class="title"><button data-screen="home">←</button><h2>Recipe Engine</h2></div>
+<section class="card"><h3>Create from what you have</h3><div class="grid"><label>Meal style<select id="recipeStyle"><option>Easy dinner</option><option>Gluten free dairy free</option><option>Low irritation / gentle</option><option>Use leftovers</option><option>High protein</option></select></label><label>Servings<input id="recipeServings" type="number" min="1" value="2"></label></div><label>Notes<textarea id="recipeNotes" placeholder="Use chicken, avoid honey mustard, gentle stomach..."></textarea></label><div class="actions"><button id="generateRecipe">Generate recipe</button><button id="clearRecipe" class="secondary">Clear</button></div></section>
+<section class="card"><h3>Generated recipe</h3><div id="recipeOutput" class="recipe"><p>No recipe generated yet.</p></div><div class="actions"><button id="deployRecipe">Deploy recipe + lower stock</button><button id="saveRecipe" class="secondary">Save only</button></div></section>
+<section class="card"><h3>Saved recipes</h3><div id="recipeList" class="list"></div></section>
+</section>
 
-        <section class="traffic-grid">
-          <div class="traffic green"><b>Green</b><span>Tracey Safe only when proven.</span></div>
-          <div class="traffic amber"><b>Amber</b><span>Check / uncertain / trace dairy.</span></div>
-          <div class="traffic red"><b>Red</b><span>Do not use: gluten or blocked dairy.</span></div>
-        </section>
+<section class="screen" id="shopping">
+<div class="title"><button data-screen="home">←</button><h2>Shopping List</h2></div>
+<section class="card"><h3>Auto alerts: choose Add or Leave</h3><div id="autoShop" class="list"></div></section>
+<section class="card"><h3>Manual item</h3><div class="grid"><label>Item<input id="shopItem"></label><label>Reason<input id="shopReason"></label></div><button id="addShop" class="wide">Add to shopping</button></section>
+<section class="card"><h3>Chosen shopping list</h3><div id="shopList" class="list"></div><button id="exportShopping" class="wide secondary">Download shopping CSV</button></section>
+</section>
 
-        <section class="card">
-          <h3>Today’s personal rules</h3>
-          <div class="rule-line"><span>Strict coeliac blocker</span><b>On</b></div>
-          <div class="rule-line"><span>Direct dairy blocker</span><b>On</b></div>
-          <div class="rule-line"><span>Trace dairy</span><b>Amber warning</b></div>
-          <div class="rule-line"><span>Unclear label</span><b>Never green</b></div>
-          <button data-screen="rules" class="wide secondary">Edit safety rules</button>
-        </section>
+<section class="screen" id="alerts"><div class="title"><button data-screen="home">←</button><h2>Alerts</h2></div><section class="card"><h3>Current alerts</h3><div id="alertList" class="list"></div></section></section>
 
-        <section class="card warning">
-          <h3>Health note</h3>
-          <p>Daily diarrhoea and fast weight loss need medical help alongside the app. This app supports evidence gathering for your GP or dietitian; it does not diagnose or replace medical care.</p>
-          <button data-screen="export" class="secondary">Prepare doctor export</button>
-        </section>
-      </section>
+<section class="screen" id="rules"><div class="title"><button data-screen="home">←</button><h2>Safety Rules</h2></div><section class="card"><h3>Rules</h3><label class="toggle">Strict coeliac blocker<input id="ruleGluten" type="checkbox" checked></label><label class="toggle">Direct dairy blocker<input id="ruleDairy" type="checkbox" checked></label><label class="toggle">Trace dairy = amber<input id="ruleTrace" type="checkbox" checked></label><label class="toggle">Housemate food blocked<input id="ruleHousemate" type="checkbox" checked></label></section><section class="card"><h3>Blocked terms</h3><div id="blockedTerms" class="chips"></div></section></section>
 
-      <!-- SCAN -->
-      <section class="screen" id="scan">
-        <div class="page-title"><button data-screen="home">←</button><h2>Check Food Now</h2></div>
-        <section class="card">
-          <h3>1. Photo proof required</h3>
-          <p class="helper">Take or upload the ingredients list and allergen statement. Green is blocked unless both proof boxes are ticked.</p>
-          <div class="upload-grid">
-            <label class="upload-box">
-              <input id="ingredientsPhoto" type="file" accept="image/*" capture="environment">
-              <span>📷 Ingredients photo</span>
-              <img id="ingredientsPreview" alt="">
-            </label>
-            <label class="upload-box">
-              <input id="allergenPhoto" type="file" accept="image/*" capture="environment">
-              <span>📷 Allergen statement photo</span>
-              <img id="allergenPreview" alt="">
-            </label>
-          </div>
-          <div class="proof-grid">
-            <label><input type="checkbox" id="proofIngredients"> Ingredients list is clear and complete</label>
-            <label><input type="checkbox" id="proofAllergen"> Allergen statement is clear and complete</label>
-            <label><input type="checkbox" id="proofCurrentLabel"> I checked the physical/current label</label>
-            <label><input type="checkbox" id="proofMine"> This item is mine / safe pantry item, not housemate food</label>
-          </div>
-        </section>
-
-        <section class="card">
-          <h3>2. Read label text</h3>
-          <p class="helper">OCR works in-browser when the online OCR script loads. If it cannot read clearly, Genevieve stays amber/red and asks for proof.</p>
-          <div class="button-row">
-            <button id="runOcrBtn">Try OCR from ingredients photo</button>
-            <button id="clearScanBtn" class="secondary">Clear scan</button>
-          </div>
-          <label>Product name
-            <input id="productName" placeholder="Example: gluten free pasta sauce">
-          </label>
-          <label>Ingredients / label text
-            <textarea id="labelText" placeholder="Paste or OCR ingredients, allergen statement, may contain, preservatives..."></textarea>
-          </label>
-          <label>Barcode / notes
-            <input id="barcodeNotes" placeholder="Optional barcode, store, batch or notes">
-          </label>
-        </section>
-
-        <section class="card">
-          <h3>3. Genevieve decision</h3>
-          <div id="scanResult" class="result-card amber">
-            <strong>Amber — waiting for label proof</strong>
-            <span>Upload photos, tick proof boxes, then run check.</span>
-          </div>
-          <div class="score-row">
-            <div><b id="confidenceScore">0%</b><span>Confidence</span></div>
-            <div><b id="cleanScore">0%</b><span>Clean food score</span></div>
-          </div>
-          <button id="analyseBtn" class="wide">Analyse with No-Guess Mode</button>
-          <button id="saveMealBtn" class="wide secondary">Save to meal diary</button>
-        </section>
-
-        <section class="card">
-          <h3>Detected risks</h3>
-          <div id="detectedRisks" class="risk-list"><p class="helper">No label analysed yet.</p></div>
-        </section>
-      </section>
-
-      <!-- RULES -->
-      <section class="screen" id="rules">
-        <div class="page-title"><button data-screen="home">←</button><h2>Rules</h2></div>
-        <section class="card">
-          <h3>Strict coeliac rules</h3>
-          <p>These trigger red unless the item is clearly marked gluten-free and the cereal source is safe.</p>
-          <div id="glutenTerms" class="chips"></div>
-        </section>
-        <section class="card">
-          <h3>Dairy rules</h3>
-          <label class="toggle-row">Block direct dairy red <input id="blockDairy" type="checkbox" checked></label>
-          <label class="toggle-row">Treat trace dairy / may contain milk as amber <input id="traceDairyAmber" type="checkbox" checked></label>
-          <div id="dairyTerms" class="chips"></div>
-        </section>
-        <section class="card">
-          <h3>Clean-food / additive caution</h3>
-          <p>These do not always mean red, but Genevieve warns and reduces the clean-food score.</p>
-          <div id="additiveTerms" class="chips"></div>
-        </section>
-      </section>
-
-      <!-- DIARY -->
-      <section class="screen" id="diary">
-        <div class="page-title"><button data-screen="home">←</button><h2>Meal & Reaction Diary</h2></div>
-        <section class="card">
-          <h3>Log what happened after eating</h3>
-          <div class="form-grid">
-            <label>Date/time <input id="symptomTime" type="datetime-local"></label>
-            <label>Meal / product <input id="symptomMeal" placeholder="What did you eat?"></label>
-            <label>Bowel count today <input id="bowelCount" type="number" min="0" max="30" value="0"></label>
-            <label>Delay after eating <input id="delayAfter" placeholder="Example: 30 min, 2 hours, next morning"></label>
-          </div>
-          <label>Symptoms
-            <textarea id="symptoms" placeholder="Diarrhoea, stomach pain, nausea, bloating, fatigue, urgency, other..."></textarea>
-          </label>
-          <label>Suspected ingredient / preservative
-            <input id="suspectIngredient" placeholder="Example: sorbate, maltodextrin, onion, milk solids">
-          </label>
-          <button id="saveSymptomBtn" class="wide">Save reaction</button>
-        </section>
-
-        <section class="card">
-          <h3>Saved diary</h3>
-          <div id="diaryList" class="saved-list"></div>
-        </section>
-      </section>
-
-      <!-- LEARNING -->
-      <section class="screen" id="learning">
-        <div class="page-title"><button data-screen="home">←</button><h2>Learning Engine</h2></div>
-        <section class="card">
-          <h3>Repeated suspect patterns</h3>
-          <p class="helper">This personal trial counts repeated suspected ingredients and products from your diary. It is not a medical diagnosis.</p>
-          <div id="learningList" class="saved-list"></div>
-        </section>
-        <section class="card">
-          <h3>How Genevieve learns safely</h3>
-          <ul>
-            <li>It links food, time delay, bowel count and symptoms.</li>
-            <li>It highlights repeated suspected ingredients.</li>
-            <li>It never says “confirmed cause” without medical review.</li>
-            <li>It gives you evidence to take to a GP, gastroenterologist or dietitian.</li>
-          </ul>
-        </section>
-      </section>
-
-      <!-- PANTRY -->
-      <section class="screen" id="pantry">
-        <div class="page-title"><button data-screen="home">←</button><h2>Pantry Board</h2></div>
-        <section class="card">
-          <h3>Pantry safety board</h3>
-          <p>Mark food as mine, shared, housemate, safe, caution or do not use.</p>
-          <div class="form-grid">
-            <label>Item <input id="pantryItem" placeholder="Product name"></label>
-            <label>Status
-              <select id="pantryStatus">
-                <option>Mine — checked safe</option>
-                <option>Mine — amber caution</option>
-                <option>Do not use</option>
-                <option>Shared — check first</option>
-                <option>Housemate — not mine</option>
-              </select>
-            </label>
-          </div>
-          <button id="savePantryBtn" class="wide">Save pantry item</button>
-        </section>
-        <section class="card">
-          <h3>Saved pantry items</h3>
-          <div id="pantryList" class="saved-list"></div>
-        </section>
-      </section>
-
-      <!-- EXPORT -->
-      <section class="screen" id="export">
-        <div class="page-title"><button data-screen="home">←</button><h2>Doctor Export</h2></div>
-        <section class="card">
-          <h3>Export evidence</h3>
-          <p>Download CSV files for your GP, gastroenterologist or dietitian.</p>
-          <div class="big-actions">
-            <button id="exportMealsBtn">Download meal scan CSV</button>
-            <button id="exportSymptomsBtn">Download symptoms CSV</button>
-            <button id="exportPantryBtn" class="secondary">Download pantry CSV</button>
-          </div>
-        </section>
-        <section class="card">
-          <h3>Emergency flags to discuss</h3>
-          <ul>
-            <li>Daily diarrhoea.</li>
-            <li>Weight loss over a month.</li>
-            <li>Severe pain, dehydration, blood, fever, faintness or unable to keep fluids down needs urgent care.</li>
-          </ul>
-        </section>
-      </section>
-
-      <!-- ALERTS -->
-      <section class="screen" id="alerts">
-        <div class="page-title"><button data-screen="home">←</button><h2>Alerts</h2></div>
-        <section class="card">
-          <h3>Safety alerts</h3>
-          <div class="alert-line red"><b>Red</b><span>Gluten/wheat/barley/rye/malt, direct dairy if blocker on, or housemate/not yours.</span></div>
-          <div class="alert-line amber"><b>Amber</b><span>Trace dairy, blurry label, may contain, preservatives, online-only data or missing allergen panel.</span></div>
-          <div class="alert-line green"><b>Green</b><span>Only when Genevieve can prove the label fits your rules.</span></div>
-        </section>
-      </section>
-    </main>
-
-    <nav class="bottom-nav">
-      <button class="active" data-screen="home">🏠<span>Home</span></button>
-      <button data-screen="scan">📷<span>Scan</span></button>
-      <button data-screen="diary">🚽<span>Diary</span></button>
-      <button data-screen="learning">🧠<span>Learn</span></button>
-      <button data-screen="pantry">🧺<span>Pantry</span></button>
-      <button data-screen="export">📄<span>Export</span></button>
-      <button data-screen="rules">⚙️<span>Rules</span></button>
-    </nav>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script src="./app.js"></script>
-</body>
-</html>
+<section class="screen" id="export"><div class="title"><button data-screen="home">←</button><h2>Export</h2></div><section class="card"><h3>Downloads</h3><div class="actions"><button id="exportStock">Stock CSV</button><button id="exportRecipes" class="secondary">Recipes CSV</button><button id="exportUsage" class="secondary">Usage CSV</button></div></section></section>
+</main>
+<nav class="bottom"><button class="active" data-screen="home">🏠<span>Home</span></button><button data-screen="stock">🧺<span>Stock</span></button><button data-screen="recipes">🍲<span>Recipes</span></button><button data-screen="shopping">🛒<span>Shop</span></button><button data-screen="alerts">🔔<span>Alerts</span></button><button data-screen="rules">⚙️<span>Rules</span></button><button data-screen="export">📄<span>Export</span></button></nav>
+</div>
+<script src="./app.js"></script>
+</body></html>

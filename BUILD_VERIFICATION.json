@@ -1,17 +1,15 @@
 {
-  "all_required_files_present": true,
-  "index_references_styles": true,
-  "index_references_app": true,
-  "node_check_returncode": 0,
+  "required_present": true,
+  "node_returncode": 0,
   "node_error": "",
   "no_package_json": true,
   "no_node_modules": true,
-  "root_files": [
+  "files": [
     "DEPLOYMENT_INSTRUCTIONS.txt",
     "README.md",
     "_redirects",
     "app.js",
-    "assets/genevieve-food-icon.svg",
+    "assets/genevieve-food-stock-icon.svg",
     "index.html",
     "manifest.webmanifest",
     "netlify.toml",

@@ -1,13 +1,13 @@
 {
-  "name": "GENEVIEVE App Food Safety V15",
-  "short_name": "Genevieve Food",
+  "name": "GENEVIEVE App Food Stock Recipe Engine V16",
+  "short_name": "Genevieve V16",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fff1fa",
   "theme_color": "#c6007e",
   "icons": [
     {
-      "src": "./assets/genevieve-food-icon.svg",
+      "src": "./assets/genevieve-food-stock-icon.svg",
       "sizes": "128x128",
       "type": "image/svg+xml"
     }
