@@ -1,1 +1,10 @@
-{"buildCommand":"npm run build","outputDirectory":"dist","framework":"vite","rewrites":[{"source":"/(.*)","destination":"/index.html"}]}
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

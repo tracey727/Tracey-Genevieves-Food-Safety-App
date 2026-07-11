@@ -1,20 +1,46 @@
-GENEVIEVE App™ Food Stock Recipe Engine V16 Scanner — Full Deploy
+# GENEVIEVE App™ Food Stock Recipe Engine V17
 
-WHAT THIS IS FOR:
-Product scanner + green/amber/red light indicator + clean-food score + digestibility score + learning centre + pantry/fridge stock + recipe engine + shopping list.
+Automatic no-type barcode scanner.
 
-GITHUB:
-Open the zip, open the folder, select every item inside it, upload those items to GitHub root.
+## Main scanner workflow
 
-VERCEL:
-Framework Preset: Other
-Root Directory: ./
-Install Command: blank
-Build Command: blank
-Output Directory: blank or .
+1. Take a barcode photo or upload one.
+2. The app reads the barcode automatically.
+3. The app loads the product name, ingredients and allergens from Open Food Facts.
+4. Genevieve runs the safety check.
+5. Load the product into stock.
+6. Save, reload or delete previous scans.
 
-This is static. Double-click index.html to test on your Acer Windows laptop.
-No npm. No Vite. No package.json. No node_modules.
+## Fallbacks
 
-Scanner note:
-Barcode is entered/scanned by keyboard/camera keyboard if available. Label photo upload is included. OCR is optional through a CDN; manual paste always works.
+- BarcodeDetector when supported by the browser.
+- ZXing barcode reader when BarcodeDetector is unavailable.
+- Product-name search as a backup.
+- Tesseract OCR for a separate ingredients-panel photo.
+
+## Important limitations
+
+- Internet access is required for product lookup and external scanner/OCR libraries.
+- Barcode and OCR reading can fail on blurry, cropped, dark or angled photos.
+- Always check the current physical label because food formulations can change.
+- This app is decision-support only and does not replace medical or dietitian advice.
+
+## Deployment
+
+Static deploy:
+- index.html at root
+- styles.css at root
+- app.js at root
+- vercel.json at root
+- no npm
+- no package.json
+- no node_modules
+
+Vercel:
+- Framework Preset: Other
+- Root Directory: ./
+- Install Command: blank
+- Build Command: blank
+- Output Directory: blank or .
+
+Created: 2026-07-11

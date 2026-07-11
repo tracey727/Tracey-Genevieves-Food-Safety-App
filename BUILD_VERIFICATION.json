@@ -1,24 +1,15 @@
 {
-  "required_present": true,
+  "required_files_present": true,
+  "required_scanner_ids_present": true,
   "node_returncode": 0,
   "node_error": "",
+  "index_at_root": true,
+  "vercel_at_root": true,
   "no_package_json": true,
   "no_node_modules": true,
-  "files": [
-    "DEPLOYMENT_INSTRUCTIONS.txt",
-    "README.md",
-    "_redirects",
-    "app.js",
-    "assets/genevieve-food-stock-icon.svg",
-    "index.html",
-    "manifest.webmanifest",
-    "netlify.toml",
-    "privacy.html",
-    "robots.txt",
-    "safety.html",
-    "styles.css",
-    "sw.js",
-    "terms.html",
-    "vercel.json"
-  ]
+  "open_food_facts_lookup": true,
+  "barcode_detector": true,
+  "zxing_fallback": true,
+  "ocr_fallback": true,
+  "saved_scan_load_delete": true
 }

@@ -1,6 +1,6 @@
 {
-  "name": "GENEVIEVE App Food Stock Recipe Engine V16 Scanner",
-  "short_name": "Genevieve V16",
+  "name": "GENEVIEVE App Food Stock Recipe Engine V17 Automatic Scanner",
+  "short_name": "Food Scanner V17",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fff1fa",
