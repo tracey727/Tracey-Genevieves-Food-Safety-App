@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0e3a59" />
+  <meta name="description" content="Private fortnightly Coles and Woolworths price comparison and coeliac-safe shopping planner." />
+  <title>GENEVIEVE App™ Smart Shop</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <div class="brand-mark" aria-hidden="true">GA</div>
+      <h1>GENEVIEVE App™ Smart Shop</h1>
+      <p>Your private fortnightly shopping assistant.</p>
+      <label for="pinInput">Private passcode</label>
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Enter your passcode" />
+      <button id="unlockBtn" class="primary">Open my shop</button>
+      <button id="setupPinBtn" class="text-button">Set or reset passcode</button>
+      <p class="small">This passcode discourages casual access on this device. For stronger protection, also use your phone or computer screen lock.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Private personal-use planner</p>
+        <h1>GENEVIEVE App™ Smart Shop</h1>
+      </div>
+      <div class="header-actions">
+        <button id="installBtn" class="secondary hidden">Install app</button>
+        <button id="lockBtn" class="secondary">Lock</button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Main sections">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="products">Safe products</button>
+      <button class="tab" data-view="prices">Prices</button>
+      <button class="tab" data-view="shop">Fortnightly shop</button>
+      <button class="tab" data-view="history">History</button>
+      <button class="tab" data-view="settings">Settings & backup</button>
+    </nav>
+
+    <main>
+      <section id="dashboard" class="view active-view">
+        <div class="hero card">
+          <div>
+            <p class="eyebrow">Your next shop</p>
+            <h2 id="nextShopDate">Fortnightly shopping planner</h2>
+            <p>Build your needs once. Update each store’s current price, then let the app split the list.</p>
+          </div>
+          <button class="primary" data-go="shop">Build my shop</button>
+        </div>
+        <div class="stats-grid">
+          <article class="stat card"><span>Approved safe products</span><strong id="safeCount">0</strong></article>
+          <article class="stat card"><span>Items due this fortnight</span><strong id="dueCount">0</strong></article>
+          <article class="stat card"><span>Estimated total</span><strong id="estimatedTotal">$0.00</strong></article>
+          <article class="stat card"><span>Estimated saving</span><strong id="estimatedSaving">$0.00</strong></article>
+        </div>
+        <div class="grid-2">
+          <article class="card">
+            <h3>How the learning works</h3>
+            <p>When you complete a shop, the app remembers what you bought, the quantity, the price and how often you normally need it. Suggested quantities improve over time.</p>
+          </article>
+          <article class="card warning-card">
+            <h3>Coeliac safety rule</h3>
+            <p>Only products you mark as <strong>Approved</strong> are automatically recommended. Always recheck the package label when ingredients, allergen statements or packaging change.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="products" class="view">
+        <div class="section-heading">
+          <div><p class="eyebrow">Your personal product memory</p><h2>Safe products</h2></div>
+          <button id="addProductBtn" class="primary">Add product</button>
+        </div>
+        <div class="filters card">
+          <input id="productSearch" type="search" placeholder="Search products, brands or categories" />
+          <select id="safetyFilter"><option value="all">All safety statuses</option><option value="approved">Approved</option><option value="check">Needs checking</option><option value="blocked">Blocked</option></select>
+        </div>
+        <div id="productList" class="card-list"></div>
+      </section>
+
+      <section id="prices" class="view">
+        <div class="section-heading"><div><p class="eyebrow">Current local store prices</p><h2>Update prices</h2></div></div>
+        <article class="card notice">
+          <h3>Legal personal-use method</h3>
+          <p>Enter prices you see while using the official Coles and Woolworths sites, catalogues or shelves. This app does not scrape, bypass, log into or copy either retailer’s system automatically.</p>
+        </article>
+        <div class="grid-2">
+          <form id="priceForm" class="card form-grid">
+            <h3>Add one price</h3>
+            <label>Product<select id="priceProduct" required></select></label>
+            <label>Store<select id="priceStore" required><option>Coles</option><option>Woolworths</option></select></label>
+            <label>Price ($)<input id="priceValue" type="number" min="0" step="0.01" required /></label>
+            <label>Pack size<input id="pricePack" type="text" placeholder="e.g. 500 g" /></label>
+            <label>Unit price<input id="priceUnit" type="text" placeholder="e.g. $1.20 per 100 g" /></label>
+            <label class="checkbox"><input id="priceSpecial" type="checkbox" /> On special</label>
+            <button class="primary" type="submit">Save price</button>
+          </form>
+          <form id="bulkPriceForm" class="card form-grid">
+            <h3>Paste several prices</h3>
+            <label>Store<select id="bulkStore"><option>Coles</option><option>Woolworths</option></select></label>
+            <label>One item per line<textarea id="bulkPrices" rows="9" placeholder="Product name | 5.50 | 500 g\nSoy milk | 3.20 | 1 L"></textarea></label>
+            <p class="small">The product name must closely match a product already saved in your Safe products list.</p>
+            <button class="primary" type="submit">Import pasted prices</button>
+          </form>
+        </div>
+        <div id="priceList" class="card-list"></div>
+      </section>
+
+      <section id="shop" class="view">
+        <div class="section-heading">
+          <div><p class="eyebrow">Cheapest safe split</p><h2>Fortnightly shop</h2></div>
+          <div><button id="addAllDueBtn" class="secondary">Add due items</button> <button id="completeShopBtn" class="primary">Complete shop</button></div>
+        </div>
+        <div class="shop-summary grid-3">
+          <article class="card store-card"><h3>Coles</h3><strong id="colesTotal">$0.00</strong><p id="colesCount">0 items</p></article>
+          <article class="card store-card"><h3>Woolworths</h3><strong id="wooliesTotal">$0.00</strong><p id="wooliesCount">0 items</p></article>
+          <article class="card store-card"><h3>Combined</h3><strong id="combinedTotal">$0.00</strong><p id="shopSaving">Saving $0.00</p></article>
+        </div>
+        <article id="minimumWarning" class="card warning-card hidden"></article>
+        <div id="shopList" class="card-list"></div>
+      </section>
+
+      <section id="history" class="view">
+        <div class="section-heading"><div><p class="eyebrow">What the app has learned</p><h2>Shopping history</h2></div></div>
+        <div id="historyList" class="card-list"></div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="section-heading"><div><p class="eyebrow">Private control</p><h2>Settings & backup</h2></div></div>
+        <div class="grid-2">
+          <form id="settingsForm" class="card form-grid">
+            <h3>Your rules</h3>
+            <label>Shopping cycle<select id="cycleDays"><option value="14">Every 14 days</option><option value="7">Every 7 days</option><option value="21">Every 21 days</option><option value="28">Every 28 days</option></select></label>
+            <label>Minimum per store ($)<input id="minimumSpend" type="number" min="0" step="1" value="50" /></label>
+            <label class="checkbox"><input id="traceDairy" type="checkbox" checked /> Trace dairy is acceptable</label>
+            <label class="checkbox"><input id="strictGluten" type="checkbox" checked disabled /> Strictly exclude gluten-risk products</label>
+            <button class="primary" type="submit">Save settings</button>
+          </form>
+          <article class="card form-grid">
+            <h3>Back up your information</h3>
+            <p>Your data is stored on this device in this browser. Export a backup regularly, especially before clearing browser data or changing devices.</p>
+            <button id="exportBtn" class="primary">Download backup</button>
+            <label class="file-button">Restore backup<input id="importFile" type="file" accept="application/json" /></label>
+            <button id="clearBtn" class="danger">Erase all app data</button>
+          </article>
+        </div>
+        <article class="card legal">
+          <h3>Personal-use and safety notice</h3>
+          <p>This tool is for Tracey’s personal planning and recordkeeping. It is not affiliated with, endorsed by or connected to Coles Group or Woolworths Group. Retailer names are used only to identify where Tracey records prices.</p>
+          <p>The app does not automatically access retailer accounts, scrape retailer websites, place orders or make medical guarantees. Prices, stock, ingredients and allergen statements may change. The product package and manufacturer information remain the final authority.</p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="productDialog">
+    <form id="productForm" method="dialog" class="dialog-form">
+      <div class="dialog-heading"><h2 id="productDialogTitle">Add product</h2><button type="button" id="closeDialog" class="icon-btn" aria-label="Close">×</button></div>
+      <input id="productId" type="hidden" />
+      <label>Product name<input id="productName" required /></label>
+      <label>Brand<input id="productBrand" /></label>
+      <label>Category<input id="productCategory" placeholder="e.g. Pantry, Fridge, Cleaning" /></label>
+      <label>Usual pack size<input id="productPack" placeholder="e.g. 500 g" /></label>
+      <label>Safety status<select id="productSafety"><option value="approved">Approved safe</option><option value="check">Needs checking</option><option value="blocked">Blocked</option></select></label>
+      <label>Usual quantity per fortnight<input id="productQty" type="number" min="0" step="1" value="1" /></label>
+      <label>How many you currently have<input id="productStock" type="number" min="0" step="1" value="0" /></label>
+      <label>Notes<textarea id="productNotes" rows="3" placeholder="Allergen label, preferred brand, substitution rule"></textarea></label>
+      <label class="checkbox"><input id="productNoSub" type="checkbox" checked /> No unsafe substitutions</label>
+      <div class="dialog-actions"><button type="button" id="deleteProductBtn" class="danger hidden">Delete</button><button type="submit" class="primary">Save product</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
