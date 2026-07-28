@@ -1,0 +1,34 @@
+GENEVIEVE App™ FOOD V19.2 — REPAIR REPORT
+===========================================
+Build: 2026.07.28.19.2
+
+REPAIRS COMPLETED
+- Preserved the approved original pink V19 interface.
+- Preserved GitHub/Vercel and local Windows-browser compatibility.
+- Kept automatic scanning immediately after a camera/photo selection.
+- Scanner now checks 0°, 90°, 180° and 270° automatically.
+- Optimised large phone photos and stores small previews so local phone storage does not stop the app.
+- Added safe storage fallback that preserves records if old scan photos fill browser storage.
+- Fixed false dairy results for soy milk, oat milk, almond milk, coconut milk, cocoa butter and nut/seed butters.
+- Direct dairy remains red; may-contain/trace dairy remains amber under Tracey's current rule.
+- Every detected problem now shows a plain-English reason and a safer option.
+- Added Tracey's no-seafood and no-mushroom rules.
+- Kept strict coeliac checking, pantry, recipes, shopping, learning, diary/export and product lookup.
+- Updated service-worker caching so repaired JavaScript and CSS refresh instead of remaining stuck on an old version.
+- No Python is used or included in the app.
+
+IMPORTANT LIVE-LINK FINDING
+The supplied Vercel URL is a protected deployment URL and redirects visitors to Vercel sign-in. The files cannot disable an account-level Vercel Deployment Protection setting. Deploy V19.2 to the main branch, promote it to Production, and use the project's production domain.
+
+TESTS PASSED
+- app.js, service worker and both Vercel functions passed Node syntax checking.
+- manifest.webmanifest, vercel.json and BUILD_VERIFICATION.json parsed successfully.
+- All local HTML file references resolved.
+- 90 HTML IDs checked with no duplicates.
+- 80 JavaScript element references checked with no missing IDs.
+- DOM startup reached Ready.
+- Safety cases passed: soy milk, strict-coeliac oats, direct dairy, trace dairy, seafood and mushrooms.
+- Product/search function tests passed found, not-found, unavailable, invalid, unsupported-method and successful-search cases.
+
+TEST ENVIRONMENT LIMIT
+The container's managed Chromium blocks localhost, file and data URLs by organisation policy. The app was therefore tested with syntax/static checks, a real JavaScript DOM-function harness, and mocked Vercel-function requests. Final live camera confirmation remains necessary after deployment on Tracey's iPhone.

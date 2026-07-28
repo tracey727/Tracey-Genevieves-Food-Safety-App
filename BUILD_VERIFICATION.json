@@ -1,15 +1,34 @@
 {
-  "required_files_present": true,
-  "required_scanner_ids_present": true,
-  "node_returncode": 0,
-  "node_error": "",
-  "index_at_root": true,
-  "vercel_at_root": true,
-  "no_package_json": true,
-  "no_node_modules": true,
-  "open_food_facts_lookup": true,
-  "barcode_detector": true,
-  "zxing_fallback": true,
-  "ocr_fallback": true,
-  "saved_scan_load_delete": true
+  "build": "2026.07.28.19.2",
+  "interface": "approved original pink V19 layout",
+  "deployment": {
+    "github_root_ready": true,
+    "vercel_ready": true,
+    "local_index_ready": true,
+    "python_included": false
+  },
+  "verified": {
+    "javascript_syntax": true,
+    "json_parsing": true,
+    "local_file_references": true,
+    "duplicate_html_ids": false,
+    "missing_javascript_element_ids": false,
+    "dom_startup_ready": true,
+    "soy_milk_not_false_dairy_red": true,
+    "cocoa_and_nut_butters_not_false_dairy_red": true,
+    "direct_dairy_red_with_reason_and_alternative": true,
+    "trace_dairy_amber": true,
+    "strict_coeliac_oats_red": true,
+    "seafood_rule_red": true,
+    "mushroom_rule_red": true,
+    "product_function_mock_tests": true,
+    "search_function_mock_tests": true,
+    "storage_photo_quota_fallback_present": true,
+    "scanner_four_rotation_attempts_present": true
+  },
+  "external_limits": [
+    "Public barcode databases can be incomplete or temporarily unavailable.",
+    "A protected Vercel deployment URL requires an account-level Vercel setting or promotion to a public Production domain.",
+    "Final camera testing still needs Tracey's iPhone and deployed HTTPS site because the build container browser blocks local URLs by policy."
+  ]
 }

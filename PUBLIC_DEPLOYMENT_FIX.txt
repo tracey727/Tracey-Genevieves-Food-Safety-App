@@ -1,0 +1,14 @@
+MAKE THE FOOD APP LINK PUBLIC
+=============================
+The supplied link is a protected Vercel deployment URL.
+
+1. In Vercel, open the food-app project.
+2. Open Deployments.
+3. Open the newest successful deployment made from the main branch.
+4. Choose Promote to Production if it is not already Production.
+5. Open Settings > Deployment Protection.
+6. Do not protect the Production environment with Vercel Authentication. Preview/deployment URLs may stay protected.
+7. Copy the Production domain shown on the project Overview page. Use that link, not the long unique preview URL.
+
+UPLOAD RULE
+Extract the ZIP and upload its CONTENTS to the repository root. Do not upload the enclosing folder.

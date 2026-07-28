@@ -28,3 +28,8 @@
 .search-result{cursor:pointer}
 .search-result:hover{background:#fff0fa}
 @media(max-width:760px){.scan-choice-grid,.auto-load-grid{grid-template-columns:1fr}}
+
+.startup-status{display:grid;gap:4px;margin:0 0 12px;padding:12px 14px;border-radius:16px;background:#fff0c7;border:2px solid var(--amber)}
+.startup-status.success{background:#e6f8e8;border-color:var(--green)}
+.startup-status.error{background:#ffe0e0;border-color:var(--red)}
+.startup-status span{color:var(--muted)}

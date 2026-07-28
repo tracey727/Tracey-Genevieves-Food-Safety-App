@@ -1,46 +1,53 @@
-# GENEVIEVE App™ Food Stock Recipe Engine V17
+GENEVIEVE App™ FOOD V19.2 — GITHUB + VERCEL DEPLOYMENT
+======================================================
 
-Automatic no-type barcode scanner.
+A. BEFORE UPLOADING
+-------------------
+1. Extract this ZIP.
+2. Open the extracted folder.
+3. Confirm index.html is directly inside it.
+4. Do not upload the ZIP itself as the website.
+5. Do not place all files inside an extra folder in GitHub.
 
-## Main scanner workflow
+B. GITHUB
+---------
+Replace the old repository files with all files and folders from this package.
+The repository root must show:
 
-1. Take a barcode photo or upload one.
-2. The app reads the barcode automatically.
-3. The app loads the product name, ingredients and allergens from Open Food Facts.
-4. Genevieve runs the safety check.
-5. Load the product into stock.
-6. Save, reload or delete previous scans.
+index.html
+app.js
+styles.css
+vercel.json
+manifest.webmanifest
+sw.js
+404.html
+api/
+assets/
 
-## Fallbacks
+Commit the replacement.
 
-- BarcodeDetector when supported by the browser.
-- ZXing barcode reader when BarcodeDetector is unavailable.
-- Product-name search as a backup.
-- Tesseract OCR for a separate ingredients-panel photo.
+C. VERCEL
+---------
+Framework Preset: Other
+Root Directory: ./ or blank
+Install Command: blank
+Build Command: blank
+Output Directory: blank
+Environment Variables: none required
 
-## Important limitations
+Redeploy the latest GitHub commit.
 
-- Internet access is required for product lookup and external scanner/OCR libraries.
-- Barcode and OCR reading can fail on blurry, cropped, dark or angled photos.
-- Always check the current physical label because food formulations can change.
-- This app is decision-support only and does not replace medical or dietitian advice.
+D. AFTER DEPLOYMENT
+-------------------
+1. Open the new Vercel deployment URL in a private/incognito tab first.
+2. Confirm the header says V19.2.
+3. Open Scan.
+4. Type the photographed test barcode 9300617433163 in Backup search options and press Load typed barcode.
+5. Confirm Cadbury Flake Sharepack loads and the dairy rule produces a red result.
+6. Then test a fresh barcode photograph.
 
-## Deployment
+If an old iPhone Home Screen copy still shows V19 or the old timeout, remove that old Home Screen icon, open the new Vercel URL in Safari, and add the new version again.
 
-Static deploy:
-- index.html at root
-- styles.css at root
-- app.js at root
-- vercel.json at root
-- no npm
-- no package.json
-- no node_modules
-
-Vercel:
-- Framework Preset: Other
-- Root Directory: ./
-- Install Command: blank
-- Build Command: blank
-- Output Directory: blank or .
-
-Created: 2026-07-11
+E. COMPUTER TEST
+----------------
+Extract the ZIP and double-click index.html. The app should show Ready. No Python, local server, npm install or API key is required.

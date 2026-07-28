@@ -1,0 +1,13 @@
+GENEVIEVE APP™ FOOD PROJECT — LOCKED BUILD RULES
+================================================
+
+1. DO NOT USE PYTHON.
+2. Build with plain HTML, CSS and JavaScript.
+3. Keep GitHub and Vercel compatibility.
+4. The extracted app must open on Tracey's Windows computer by double-clicking index.html.
+5. Keep the approved pink V19 interface and layout unless Tracey explicitly approves a redesign.
+6. Do not replace V19 with the unrelated brown V22/V23 interface.
+7. Preserve compatible V19 browser data where possible.
+8. Do not require an API key for public barcode lookup.
+9. A readable barcode must not be discarded when a public database is slow or missing a product.
+10. Always show a usable correction/manual-label path and preserve the rest of the app.
