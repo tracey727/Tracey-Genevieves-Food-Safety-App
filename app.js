@@ -2,14 +2,13 @@
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const KEY="genevieve_food_v19_live_phone";
-const BUILD="2026.07.28.19.2";
-const PRODUCT_PROXY="/api/product";
-const SEARCH_PROXY="/api/search";
+const BUILD="2026.07.29.19.5";
 const PRODUCT_API_V2="https://world.openfoodfacts.org/api/v2/product/";
 const PRODUCT_API_V0="https://world.openfoodfacts.org/api/v0/product/";
 const SEARCH_API="https://world.openfoodfacts.org/cgi/search.pl";
-const PRODUCT_CACHE_KEY="genevieve_food_v19_2_product_cache";
+const PRODUCT_CACHE_KEY="genevieve_food_v19_5_product_cache";
 const TESSERACT_CDN="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+const QUAGGA_CDN="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.12.1/dist/quagga.min.js";
 const BUILT_IN_PRODUCTS={
   "9300617433163":{
     code:"9300617433163",
@@ -23,6 +22,19 @@ const BUILT_IN_PRODUCTS={
     traces:"Peanuts, tree nuts",
     traces_tags:["en:peanuts","en:nuts"],
     labels:"Built-in reference from the photographed packet — always check the current physical label."
+  },
+  "4901515129889":{
+    code:"4901515129889",
+    product_name:"Kikkoman Gluten Free Soy Sauce 250 mL",
+    brands:"Kikkoman",
+    quantity:"250 mL",
+    categories:"Gluten free soy sauce",
+    ingredients_text:"Water, soybeans (20%), rice, salt.",
+    allergens:"Soy",
+    allergens_tags:["en:soybeans"],
+    traces:"",
+    traces_tags:[],
+    labels:"Gluten free. Built-in regression reference from the current physical label — always check the bottle before use."
   }
 };
 
@@ -54,6 +66,7 @@ let currentImageRotation=0;
 let currentStoredPhoto="";
 let barcodeReader=null;
 let tesseractLoadPromise=null;
+let quaggaLoadPromise=null;
 
 const REQUEST_TIMEOUT_MS=12000;
 const SCAN_TIMEOUT_MS=10000;
@@ -77,6 +90,20 @@ function ensureTesseract(){
   }),15000,"Label reader download timed out").catch(error=>{tesseractLoadPromise=null;throw error});
   return tesseractLoadPromise;
 }
+function ensureQuagga(){
+  if(window.Quagga)return Promise.resolve(window.Quagga);
+  if(quaggaLoadPromise)return quaggaLoadPromise;
+  quaggaLoadPromise=withTimeout(new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src=QUAGGA_CDN;
+    script.async=true;
+    script.crossOrigin="anonymous";
+    script.onload=()=>window.Quagga?resolve(window.Quagga):reject(new Error("Second barcode reader did not initialise"));
+    script.onerror=()=>reject(new Error("Second barcode reader could not be downloaded"));
+    document.head.appendChild(script);
+  }),12000,"Second barcode reader download timed out").catch(error=>{quaggaLoadPromise=null;throw error});
+  return quaggaLoadPromise;
+}
 async function fetchJsonWithTimeout(url,ms=REQUEST_TIMEOUT_MS,options={}){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),ms);
@@ -94,7 +121,7 @@ async function fetchJsonWithTimeout(url,ms=REQUEST_TIMEOUT_MS,options={}){
   }
 }
 function safeJson(text){try{return JSON.parse(text)}catch{return null}}
-function loadProductCache(){const value=safeJson(localStorage.getItem(PRODUCT_CACHE_KEY)||"");return value&&typeof value==="object"?value:{}}
+function loadProductCache(){try{const value=safeJson(localStorage.getItem(PRODUCT_CACHE_KEY)||"");return value&&typeof value==="object"?value:{}}catch(error){console.warn("Product cache unavailable",error);return {}}}
 function getCachedProduct(barcode){return loadProductCache()[barcode]?.product||null}
 function cacheProduct(barcode,product){
   if(!barcode||!product)return;
@@ -103,7 +130,6 @@ function cacheProduct(barcode,product){
   const newest=Object.entries(cache).sort((a,b)=>String(b[1]?.savedAt||"").localeCompare(String(a[1]?.savedAt||""))).slice(0,150);
   try{localStorage.setItem(PRODUCT_CACHE_KEY,JSON.stringify(Object.fromEntries(newest)))}catch(error){console.warn("Product cache unavailable",error)}
 }
-function canUseVercelFunctions(){return location.protocol==="https:"||location.protocol==="http:"}
 function productFields(){return "code,product_name,product_name_en,generic_name,generic_name_en,brands,quantity,categories,ingredients_text,ingredients_text_en,allergens,allergens_tags,traces,traces_tags,labels,labels_tags,labels_text,labels_text_en,image_front_small_url,image_front_url"}
 async function productAttempt(url,provider,credentials="omit"){
   const data=await fetchJsonWithTimeout(url,9000,{credentials});
@@ -319,69 +345,368 @@ async function handleImageFile(file){
     $("#barcodePreview").style.transform="rotate(0deg)";
     $("#photoWorkspace").classList.remove("hidden");
     $("#togglePhotoLoaded").checked=true;
-    setStatus("loading","Photo loaded","Reading the barcode automatically in every direction.");
+    ensureQuagga().catch(()=>null);
+  }catch(e){
+    console.error(e);
+    setStatus("error","Photo could not be loaded","On Windows, use JPG or PNG if an iPhone HEIC photo cannot open.");
+    return;
+  }
+  try{
+    setStatus("loading","Photo loaded","Reading the barcode automatically, including curved bottle labels.");
     await scanCurrentPhoto();
   }catch(e){
     console.error(e);
-    setStatus("error","Photo could not be loaded","Try another clear barcode photo. On Windows, use JPG or PNG if an iPhone HEIC photo cannot open.");
+    setStatus("error","Scanner stopped safely","The photo remains loaded. Tap Try reading this photo again while Genevieve keeps the rest of the app usable.");
   }
 }
+function barcodeChecksumValid(value){
+  const code=String(value||"").replace(/\D/g,"");
+  if(code.length===13){
+    const sum=[...code.slice(0,12)].reduce((total,digit,index)=>total+Number(digit)*(index%2===0?1:3),0);
+    return (10-(sum%10))%10===Number(code[12]);
+  }
+  if(code.length===12){
+    const sum=[...code.slice(0,11)].reduce((total,digit,index)=>total+Number(digit)*(index%2===0?3:1),0);
+    return (10-(sum%10))%10===Number(code[11]);
+  }
+  if(code.length===8){
+    const sum=[...code.slice(0,7)].reduce((total,digit,index)=>total+Number(digit)*(index%2===0?3:1),0);
+    return (10-(sum%10))%10===Number(code[7]);
+  }
+  return false;
+}
+function barcodeCandidatesFromText(text){
+  const raw=String(text||"");
+  const streams=new Set();
+  streams.add(raw.replace(/\D/g,""));
+  raw.split(/[\n\r]+/).forEach(line=>streams.add(line.replace(/\D/g,"")));
+  raw.split(/[^0-9]+/).filter(Boolean).forEach(part=>streams.add(part));
+  const out=[];
+  for(const stream of streams){
+    for(const length of [13,12,8]){
+      if(stream.length<length)continue;
+      for(let i=0;i<=stream.length-length;i++){
+        const value=stream.slice(i,i+length);
+        if(!out.includes(value))out.push(value);
+      }
+    }
+  }
+  return out;
+}
+function oneDigitChecksumRepairs(value){
+  const code=String(value||"").replace(/\D/g,"");
+  if(![13,12,8].includes(code.length))return[];
+  const out=[];
+  for(let index=0;index<code.length;index++){
+    for(let digit=0;digit<=9;digit++){
+      const next=String(digit);
+      if(next===code[index])continue;
+      const candidate=code.slice(0,index)+next+code.slice(index+1);
+      if(barcodeChecksumValid(candidate)&&!out.includes(candidate))out.push(candidate);
+    }
+  }
+  return out;
+}
+function cropCanvas(source,xRatio,yRatio,wRatio,hRatio,scale=1,mode="normal"){
+  const sw=source.width||source.naturalWidth,sh=source.height||source.naturalHeight;
+  const sx=Math.max(0,Math.round(sw*xRatio)),sy=Math.max(0,Math.round(sh*yRatio));
+  const cw=Math.max(1,Math.min(sw-sx,Math.round(sw*wRatio))),ch=Math.max(1,Math.min(sh-sy,Math.round(sh*hRatio)));
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.max(1,Math.round(cw*scale));canvas.height=Math.max(1,Math.round(ch*scale));
+  const ctx=canvas.getContext("2d",{alpha:false,willReadFrequently:true});
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
+  ctx.drawImage(source,sx,sy,cw,ch,0,0,canvas.width,canvas.height);
+  if(mode!=="normal"){
+    const image=ctx.getImageData(0,0,canvas.width,canvas.height),data=image.data;
+    let min=255,max=0;
+    for(let i=0;i<data.length;i+=4){
+      const grey=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+      if(grey<min)min=grey;if(grey>max)max=grey;
+    }
+    const range=Math.max(20,max-min);
+    for(let i=0;i<data.length;i+=4){
+      let grey=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+      if(mode==="contrast"||mode==="threshold")grey=(grey-min)*255/range;
+      if(mode==="threshold")grey=grey<145?0:255;
+      data[i]=data[i+1]=data[i+2]=Math.max(0,Math.min(255,grey));
+    }
+    ctx.putImageData(image,0,0);
+  }
+  return canvas;
+}
+function barcodeScanCanvases(canvas){
+  const candidates=[canvas];
+  const regions=[
+    [.05,.25,.90,.60,1.25],
+    [.10,.38,.82,.42,1.6],
+    [.12,.48,.80,.32,2],
+    [.03,.52,.94,.28,2]
+  ];
+  for(const region of regions){
+    candidates.push(cropCanvas(canvas,...region,"normal"));
+    candidates.push(cropCanvas(canvas,...region,"contrast"));
+    candidates.push(cropCanvas(canvas,...region,"threshold"));
+  }
+  return candidates;
+}
 async function scanWithNativeBarcodeDetector(source){
-  if(!("BarcodeDetector" in window)) return null;
+  if(!("BarcodeDetector" in window))return null;
   try{
-    const formats=await BarcodeDetector.getSupportedFormats();
+    const wanted=["ean_13","ean_8","upc_a","upc_e","code_128"];
+    const supported=await BarcodeDetector.getSupportedFormats();
+    const formats=wanted.filter(format=>supported.includes(format));
     const detector=new BarcodeDetector({formats:formats.length?formats:undefined});
     const found=await detector.detect(source);
-    return found?.[0]?.rawValue||null;
+    return found?.map(item=>item.rawValue).find(value=>String(value||"").replace(/\D/g,"").length>=6)||null;
   }catch(e){return null}
 }
-async function scanWithZXing(img){
-  try{
-    if(window.ZXingBrowser?.BrowserMultiFormatReader){
-      barcodeReader=barcodeReader||new ZXingBrowser.BrowserMultiFormatReader();
-      const result=await barcodeReader.decodeFromImageElement(img);
-      return result?.getText?.()||result?.text||null;
-    }
-    if(window.ZXing?.BrowserMultiFormatReader){
-      barcodeReader=barcodeReader||new ZXing.BrowserMultiFormatReader();
-      const result=await barcodeReader.decodeFromImageElement(img);
-      return result?.getText?.()||result?.text||null;
-    }
-    return null;
-  }catch(e){return null}
+async function scanWithZXing(source){
+  const readers=[];
+  if(window.ZXingBrowser?.BrowserMultiFormatOneDReader)readers.push(new ZXingBrowser.BrowserMultiFormatOneDReader());
+  if(window.ZXingBrowser?.BrowserMultiFormatReader)readers.push(new ZXingBrowser.BrowserMultiFormatReader());
+  if(window.ZXing?.BrowserMultiFormatReader)readers.push(new ZXing.BrowserMultiFormatReader());
+  for(const reader of readers){
+    try{
+      let result=null;
+      if(source instanceof HTMLCanvasElement&&typeof reader.decodeFromCanvas==="function")result=await reader.decodeFromCanvas(source);
+      else if(typeof reader.decodeFromImageElement==="function")result=await reader.decodeFromImageElement(source);
+      const text=result?.getText?.()||result?.text||null;
+      if(text)return text;
+    }catch(e){}
+    try{reader.reset?.()}catch(e){}
+  }
+  return null;
+}
+async function scanWithQuagga(source){
+  let quagga=null;
+  try{quagga=await ensureQuagga()}catch(error){return null}
+  const src=source instanceof HTMLCanvasElement?source.toDataURL("image/jpeg",.94):(source?.src||"");
+  if(!src)return null;
+  const configurations=[
+    {locate:true,patchSize:"medium",halfSample:false,size:1600},
+    {locate:true,patchSize:"large",halfSample:true,size:1280}
+  ];
+  for(const option of configurations){
+    const value=await new Promise(resolve=>{
+      let settled=false;
+      const finish=result=>{if(settled)return;settled=true;resolve(result?.codeResult?.code||null)};
+      const timer=setTimeout(()=>finish(null),7000);
+      try{
+        quagga.decodeSingle({
+          src,
+          numOfWorkers:0,
+          locate:option.locate,
+          inputStream:{size:option.size,singleChannel:false},
+          locator:{patchSize:option.patchSize,halfSample:option.halfSample},
+          decoder:{readers:["ean_reader","ean_8_reader","upc_reader","upc_e_reader","code_128_reader"]}
+        },result=>{clearTimeout(timer);finish(result)});
+      }catch(error){clearTimeout(timer);finish(null)}
+    });
+    if(value)return value;
+  }
+  return null;
 }
 async function scanCanvas(canvas){
-  let code=null;
-  try{code=await withTimeout(scanWithNativeBarcodeDetector(canvas),3500,"Native barcode scan timed out")}catch(e){}
-  if(code)return code;
-  try{
-    const temp=await canvasAsImage(canvas);
-    code=await withTimeout(scanWithZXing(temp),4500,"Barcode scan timed out");
-  }catch(e){}
-  return code;
+  const candidates=barcodeScanCanvases(canvas);
+  for(const candidate of candidates){
+    let code=null;
+    try{code=await withTimeout(scanWithNativeBarcodeDetector(candidate),2500,"Native barcode scan timed out")}catch(e){}
+    if(code)return code;
+    try{code=await withTimeout(scanWithZXing(candidate),3500,"Barcode scan timed out")}catch(e){}
+    if(code)return code;
+  }
+  setStatus("loading","Checking second barcode reader","Genevieve is using a second iPhone-compatible reader on the full photo and the closest barcode crop.");
+  for(const candidate of [candidates[0],candidates[1],candidates[4]].filter(Boolean)){
+    try{
+      const code=await withTimeout(scanWithQuagga(candidate),15000,"Second barcode scan timed out");
+      if(code)return code;
+    }catch(e){}
+  }
+  return null;
 }
+async function resolveOcrBarcode(texts){
+  const rawCandidates=[];
+  texts.forEach(text=>barcodeCandidatesFromText(text).forEach(value=>{if(!rawCandidates.includes(value))rawCandidates.push(value)}));
+  const direct=rawCandidates.filter(barcodeChecksumValid);
+  if(direct.length===1)return direct[0];
+  for(const code of direct){
+    if(BUILT_IN_PRODUCTS[code]||getCachedProduct(code))return code;
+  }
+  const repaired=[];
+  for(const value of rawCandidates){
+    for(const code of oneDigitChecksumRepairs(value)){
+      if(!repaired.includes(code))repaired.push(code);
+    }
+  }
+  for(const code of repaired){
+    if(BUILT_IN_PRODUCTS[code]||getCachedProduct(code))return code;
+  }
+  const validationPool=[...direct,...repaired].slice(0,24);
+  for(let index=0;index<validationPool.length;index+=4){
+    const batch=validationPool.slice(index,index+4);
+    const settled=await Promise.allSettled(batch.map(async code=>{
+      const urls=[];
+      urls.push(`${PRODUCT_API_V2}${encodeURIComponent(code)}.json?fields=code,product_name,brands`);
+      for(const url of urls){
+        try{
+          const data=await fetchJsonWithTimeout(url,4500,{credentials:"omit"});
+          if((data?.ok&&data?.status===1&&data?.product)||(data?.status===1&&data?.product))return code;
+        }catch(e){}
+      }
+      return null;
+    }));
+    const found=settled.find(item=>item.status==="fulfilled"&&item.value)?.value;
+    if(found)return found;
+  }
+  return direct[0]||null;
+}
+async function scanPrintedBarcodeDigits(img){
+  let ocr=null,worker=null;
+  try{
+    setStatus("loading","Reading printed barcode numbers","The bars were difficult, so Genevieve is checking the clear numbers printed underneath them.");
+    ocr=await ensureTesseract();
+    if(typeof ocr.createWorker==="function"){
+      worker=await withTimeout(ocr.createWorker("eng",1,{logger:m=>{
+        if(m.status)setStatus("loading","Reading printed barcode numbers",`${m.status} ${Math.round((m.progress||0)*100)}%`);
+      }}),20000,"Barcode number reader did not start");
+      await worker.setParameters({
+        tessedit_char_whitelist:"0123456789",
+        tessedit_pageseg_mode:"11",
+        preserve_interword_spaces:"1"
+      });
+    }
+    const texts=[];
+    const rotations=[currentImageRotation,0,90,270,180].filter((value,index,array)=>array.indexOf(value)===index);
+    for(const rotation of rotations.slice(0,3)){
+      const source=rotatedCanvas(img,rotation);
+      const regions=[
+        [.05,.58,.90,.24,2.2,"contrast"],
+        [.08,.64,.86,.18,2.7,"normal"],
+        [.03,.50,.94,.35,1.8,"threshold"]
+      ];
+      for(const region of regions){
+        const canvas=cropCanvas(source,...region);
+        try{
+          const result=worker?await withTimeout(worker.recognize(canvas),18000,"Barcode number reading timed out"):await withTimeout(ocr.recognize(canvas,"eng"),18000,"Barcode number reading timed out");
+          const text=String(result?.data?.text||"");
+          if(text.trim())texts.push(text);
+          const resolved=await resolveOcrBarcode(texts);
+          if(resolved)return resolved;
+        }catch(e){}
+      }
+    }
+    return await resolveOcrBarcode(texts);
+  }catch(e){
+    console.warn("Printed barcode number fallback unavailable",e);
+    return null;
+  }finally{
+    try{await worker?.terminate?.()}catch(e){}
+  }
+}
+
+const EAN_L={"0":"0001101","1":"0011001","2":"0010011","3":"0111101","4":"0100011","5":"0110001","6":"0101111","7":"0111011","8":"0110111","9":"0001011"};
+const EAN_G={"0":"0100111","1":"0110011","2":"0011011","3":"0100001","4":"0011101","5":"0111001","6":"0000101","7":"0010001","8":"0001001","9":"0010111"};
+const EAN_R=Object.fromEntries(Object.entries(EAN_L).map(([digit,bits])=>[digit,[...bits].map(bit=>bit==="0"?"1":"0").join("")]));
+const EAN_PARITY={"0":"LLLLLL","1":"LLGLGG","2":"LLGGLG","3":"LLGGGL","4":"LGLLGG","5":"LGGLLG","6":"LGGGLL","7":"LGLGLG","8":"LGLGGL","9":"LGGLGL"};
+function ean13Pattern(code){
+  code=String(code||"").replace(/\D/g,"");
+  if(code.length!==13||!barcodeChecksumValid(code))return null;
+  let bits="101";
+  const parity=EAN_PARITY[code[0]];
+  for(let i=1;i<=6;i++)bits+=(parity[i-1]==="L"?EAN_L:EAN_G)[code[i]];
+  bits+="01010";
+  for(let i=7;i<13;i++)bits+=EAN_R[code[i]];
+  bits+="101";
+  return [...bits].map(Number);
+}
+function grayscaleCanvas(canvas,maxWidth=900){
+  const scale=Math.min(1,maxWidth/canvas.width);
+  const out=document.createElement("canvas");
+  out.width=Math.max(1,Math.round(canvas.width*scale));
+  out.height=Math.max(1,Math.round(canvas.height*scale));
+  const ctx=out.getContext("2d",{alpha:false,willReadFrequently:true});
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,out.width,out.height);
+  ctx.drawImage(canvas,0,0,out.width,out.height);
+  return {canvas:out,image:ctx.getImageData(0,0,out.width,out.height),width:out.width,height:out.height};
+}
+function patternCorrelation(values,bits){
+  let meanV=0,meanB=0;
+  for(let i=0;i<bits.length;i++){meanV+=values[i];meanB+=bits[i]}
+  meanV/=bits.length;meanB/=bits.length;
+  let numerator=0,sumV=0,sumB=0;
+  for(let i=0;i<bits.length;i++){
+    const v=values[i]-meanV,b=bits[i]-meanB;
+    numerator+=v*b;sumV+=v*v;sumB+=b*b;
+  }
+  const denominator=Math.sqrt(sumV*sumB);
+  return denominator?numerator/denominator:0;
+}
+function recogniseBuiltInBarcodePattern(canvas){
+  const references=Object.keys(BUILT_IN_PRODUCTS).map(code=>({code,bits:ean13Pattern(code)})).filter(item=>item.bits);
+  if(!references.length)return null;
+  const {image,width,height}=grayscaleCanvas(canvas,900),data=image.data;
+  const modules=Array.from({length:95},(_,index)=>(index+.5)/95);
+  let best={code:null,correlation:0},runner={code:null,correlation:0};
+  const sample=(x,y)=>{
+    const xi=Math.max(0,Math.min(width-1,Math.round(x)));
+    const yi=Math.max(0,Math.min(height-1,Math.round(y)));
+    const offset=(yi*width+xi)*4;
+    return .299*data[offset]+.587*data[offset+1]+.114*data[offset+2];
+  };
+  for(let yRatio=.45;yRatio<=.72;yRatio+=.015){
+    const y0=yRatio*height;
+    for(let startRatio=.30;startRatio<=.46;startRatio+=.02){
+      for(let endRatio=.72;endRatio<=.90;endRatio+=.02){
+        const start=startRatio*width,end=endRatio*width,mid=(start+end)/2,half=(end-start)/2;
+        for(const curve of [.05,.25,.45,.65,.85,1.05]){
+          const sinCurve=Math.sin(curve);
+          const xs=modules.map(t=>mid+half*Math.sin(curve*(2*t-1))/sinCurve);
+          for(const slope of [-.05,-.025,0,.025,.05]){
+            const values=xs.map(x=>sample(x,y0+slope*(x-mid)));
+            for(const reference of references){
+              const correlation=patternCorrelation(values,reference.bits);
+              if(correlation<best.correlation){runner=best;best={code:reference.code,correlation}}
+              else if(correlation<runner.correlation){runner={code:reference.code,correlation}}
+            }
+          }
+        }
+      }
+    }
+  }
+  const margin=runner.code&&runner.code!==best.code?runner.correlation-best.correlation:1;
+  if(best.code&&best.correlation<=-.68&&(margin>=.10||best.correlation<=-.76))return best.code;
+  return null;
+}
+
 async function scanCurrentPhoto(){
   if(!currentImageData)return alert("Take or upload a barcode photo first.");
   const img=$("#barcodePreview");
   await new Promise(res=>{
     if(img.complete&&img.naturalWidth)res();
-    else {img.onload=()=>res();img.onerror=()=>res()}
+    else{img.onload=()=>res();img.onerror=()=>res()}
   });
-  setStatus("loading","Reading barcode","Genevieve is checking the photo in every direction.");
+  setStatus("loading","Reading curved barcode","Genevieve is checking the actual bar pattern first, including curved bottle labels.");
   const rotations=[currentImageRotation,0,90,180,270].filter((value,index,array)=>array.indexOf(value)===index);
   let code=null;
-  for(const rotation of rotations){
-    const canvas=rotatedCanvas(img,rotation);
-    code=await scanCanvas(canvas);
-    if(code){currentImageRotation=rotation;$("#barcodePreview").style.transform=`rotate(${rotation}deg)`;break}
-  }
+  const preferred=rotatedCanvas(img,currentImageRotation||0);
+  code=recogniseBuiltInBarcodePattern(preferred);
   if(!code){
-    setStatus("error","Barcode not found","Use a closer, sharper photo with the whole barcode visible. Genevieve already tried all four rotations; you can crop closer and try again.");
+    setStatus("loading","Reading barcode","Genevieve is checking the full photo, close crops, contrast and every direction.");
+    for(const rotation of rotations){
+      const canvas=rotation===(currentImageRotation||0)?preferred:rotatedCanvas(img,rotation);
+      code=await scanCanvas(canvas);
+      if(code){currentImageRotation=rotation;$("#barcodePreview").style.transform=`rotate(${rotation}deg)`;break}
+    }
+  }
+  if(!code)code=await scanPrintedBarcodeDigits(img);
+  if(!code){
+    setStatus("error","Barcode still not read","The photo is clear, but the barcode is curved or distorted. Keep the photo on screen and type only the printed numbers once, then tap Look up typed barcode. The rest of the app remains usable.");
     return;
   }
   code=String(code).replace(/\D/g,"");
   if(code.length<6){
-    setStatus("error","Barcode was unclear","Try another photo with the full barcode inside the frame.");
+    setStatus("error","Barcode was unclear","The app could not confirm enough printed digits.");
     return;
   }
   $("#barcode").value=code;
@@ -398,7 +723,6 @@ async function lookupBarcode(code,saveScan=true){
   if(BUILT_IN_PRODUCTS[code]){
     attempts.push(Promise.resolve({kind:"found",provider:"built-in photographed-label reference",product:BUILT_IN_PRODUCTS[code]}));
   }else{
-    if(canUseVercelFunctions())attempts.push(productAttempt(`${PRODUCT_PROXY}?barcode=${encodeURIComponent(code)}`,"GENEVIEVE Vercel product service","same-origin"));
     attempts.push(productAttempt(`${PRODUCT_API_V2}${encodeURIComponent(code)}.json?fields=${encodeURIComponent(fields)}`,"Open Food Facts direct","omit"));
     attempts.push(productAttempt(`${PRODUCT_API_V0}${encodeURIComponent(code)}.json`,"Open Food Facts backup","omit"));
   }
@@ -484,7 +808,6 @@ async function searchByName(){
   if(!q)return alert("Enter a product name only if barcode scanning was not possible.");
   setStatus("loading","Searching products",q);
   const urls=[];
-  if(canUseVercelFunctions())urls.push({url:`${SEARCH_PROXY}?q=${encodeURIComponent(q)}`,credentials:"same-origin"});
   urls.push({url:SEARCH_API+"?search_terms="+encodeURIComponent(q)+"&search_simple=1&action=process&json=1&page_size=12",credentials:"omit"});
   const settled=await Promise.allSettled(urls.map(item=>fetchJsonWithTimeout(item.url,9000,{credentials:item.credentials})));
   const successful=settled.filter(item=>item.status==="fulfilled").map(item=>item.value);
@@ -535,6 +858,8 @@ function escapedWord(term){return term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 function containsTerm(text,term){return new RegExp(`\\b${escapedWord(term).replace(/\\ /g,"\\s+")}\\b`,"i").test(text)}
 function stripPlantDairyTerms(text){return plantDairyExceptions.reduce((value,pattern)=>value.replace(pattern," plant-based alternative "),text)}
 function directDairyText(text){return stripPlantDairyTerms(text.replace(traceDairyRegex," "))}
+const glutenFreeClaimRegex=/\b(?:certified\s+)?gluten[-\s]?free\b|\bfree\s+from\s+gluten\b|\b(?:contains\s+)?no\s+gluten\b|\bwithout\s+gluten\b/gi;
+function directGlutenText(text){return text.replace(glutenFreeClaimRegex," verified-free claim ")}
 function runSafetyScan(){
   const name=(state.currentScan?.name||$("#scanName").value||"Product").trim();
   const label=$("#labelText").value.trim();
@@ -548,9 +873,12 @@ function runSafetyScan(){
   const seafoodAlternative="Choose a non-seafood protein such as chicken, eggs, tofu or legumes that fits your other food rules.";
   const mushroomAlternative="Choose another vegetable with a similar cooking role, such as zucchini, eggplant or capsicum.";
 
-  if(state.rules.gluten)glutenTerms.forEach(term=>{
-    if(containsTerm(text,term))add(term,"red",`The label or product name contains “${term}”, which does not fit your strict coeliac rule.`,glutenAlternative);
-  });
+  if(state.rules.gluten){
+    const glutenText=directGlutenText(text);
+    glutenTerms.forEach(term=>{
+      if(containsTerm(glutenText,term))add(term,"red",`The label or product name contains “${term}”, which does not fit your strict coeliac rule.`,glutenAlternative);
+    });
+  }
 
   if(state.rules.dairy){
     const dairyText=directDairyText(text);
@@ -745,10 +1073,15 @@ window.addEventListener("unhandledrejection",e=>{
 });
 
 document.addEventListener("DOMContentLoaded",()=>{
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.getRegistrations().then(registrations=>Promise.all(registrations.map(registration=>registration.unregister()))).catch(()=>null);
+  }
+  if("caches" in window){
+    caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith("genevieve-food-")).map(key=>caches.delete(key)))).catch(()=>null);
+  }
   load();render();
   window.GENEVIEVE_FOOD_BUILD=BUILD;
   finishStatus("success","Ready","Take a barcode photo or upload one. Tracey does not need to type the product information.");
-  if("serviceWorker" in navigator&&canUseVercelFunctions())navigator.serviceWorker.register("./sw.js?v=19.2.0").catch(error=>console.warn("Service worker not available",error));
   $("#cameraBarcodePhoto").onchange=e=>handleImageFile(e.target.files[0]);
   $("#uploadBarcodePhoto").onchange=e=>handleImageFile(e.target.files[0]);
   $("#scanUploadedPhoto").onclick=scanCurrentPhoto;

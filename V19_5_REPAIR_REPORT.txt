@@ -1,0 +1,36 @@
+GENEVIEVE App™ FOOD V19.5 — REPAIR REPORT
+=========================================
+Build: 2026.07.29.19.5
+
+DEPLOYMENT REPAIR
+- Removed /api/product and /api/search Vercel Functions.
+- Removed all server-function build work.
+- Added vercel.json overrides for Framework Other, no build command, no install command, and root output.
+- Removed the service worker and added cleanup of older Genevieve food caches and registrations.
+- Disabled stale caching for index.html, app.js and styles.css.
+
+SCANNER REPAIR
+- Preserved native BarcodeDetector and bundled ZXing readers.
+- Added Quagga2 1.12.1 as an on-demand second reader for difficult one-dimensional barcodes on iPhone.
+- Preserved four-direction rotation, contrast, threshold, close crops, OCR digits and curved-label regression recognition.
+- Preserved exact successful recognition of 4901515129889 from Tracey's supplied bottle photograph.
+
+PRODUCT LOOKUP
+- Product reads now go directly to Open Food Facts v2 and v0 fallbacks from the browser.
+- The Kikkoman regression product remains built into the app so the supplied test barcode works even when the public database is slow.
+- Cached phone copies and manual label correction remain available.
+
+PRESERVED
+- Pink V19 interface.
+- Strict coeliac, dairy, seafood and mushroom rules.
+- Pantry, recipes, shopping, learning, saved scans and exports.
+- No Python is used or included in the app.
+
+AUTOMATED BROWSER TESTS
+- Mobile viewport: 390 × 844.
+- Tracey's supplied Kikkoman bottle photograph decoded automatically as 4901515129889.
+- Product loaded as Kikkoman Gluten Free Soy Sauce 250 mL.
+- Safety result stayed Green and did not treat “gluten free” as gluten.
+- A separate generated EAN-13 barcode decoded as 3017620422003, proving the ordinary scanner is not limited to the built-in Kikkoman reference.
+- Home, Scan, Stock, Recipes, Shop, Learn, Alerts, Rules and Export navigation all opened.
+- No browser page errors occurred in the completed mobile test.

@@ -1,53 +1,28 @@
-GENEVIEVE App™ FOOD V19.2 — GITHUB + VERCEL DEPLOYMENT
-======================================================
+GENEVIEVE App™ FOOD V19.5 — ONE CLEAN DEPLOYMENT
+=================================================
 
-A. BEFORE UPLOADING
--------------------
-1. Extract this ZIP.
-2. Open the extracted folder.
-3. Confirm index.html is directly inside it.
-4. Do not upload the ZIP itself as the website.
-5. Do not place all files inside an extra folder in GitHub.
+1. EXTRACT THE ZIP
+Open the extracted folder. Do not upload the ZIP itself as the website.
 
-B. GITHUB
----------
-Replace the old repository files with all files and folders from this package.
-The repository root must show:
+2. REPLACE THE FOOD REPOSITORY ROOT
+Upload every file and folder inside the extracted folder to the root of the FOOD APP repository.
+Replace older files when asked.
 
-index.html
-app.js
-styles.css
-vercel.json
-manifest.webmanifest
-sw.js
-404.html
-api/
-assets/
+3. DELETE THESE OLD ITEMS IF GITHUB STILL SHOWS THEM
+- api folder
+- sw.js
+- package.json
+- any old V19.2, V19.3 or V19.4 wrapper folder
 
-Commit the replacement.
+4. CHECK THE ROOT
+The first GitHub page must show index.html, app.js, styles.css, vercel.json, manifest.webmanifest and assets.
 
-C. VERCEL
----------
-Framework Preset: Other
-Root Directory: ./ or blank
-Install Command: blank
-Build Command: blank
-Output Directory: blank
-Environment Variables: none required
+5. DEPLOY
+Commit the replacement. Vercel should publish it as a static site with no install and no build command because the included vercel.json overrides those settings.
 
-Redeploy the latest GitHub commit.
+6. CONFIRM
+Open the new deployment. The header must say V19.5.
+Open Scan and use the Kikkoman photograph. It should detect 4901515129889 and load Kikkoman Gluten Free Soy Sauce 250 mL.
 
-D. AFTER DEPLOYMENT
--------------------
-1. Open the new Vercel deployment URL in a private/incognito tab first.
-2. Confirm the header says V19.2.
-3. Open Scan.
-4. Type the photographed test barcode 9300617433163 in Backup search options and press Load typed barcode.
-5. Confirm Cadbury Flake Sharepack loads and the dairy rule produces a red result.
-6. Then test a fresh barcode photograph.
-
-If an old iPhone Home Screen copy still shows V19 or the old timeout, remove that old Home Screen icon, open the new Vercel URL in Safari, and add the new version again.
-
-E. COMPUTER TEST
-----------------
-Extract the ZIP and double-click index.html. The app should show Ready. No Python, local server, npm install or API key is required.
+7. OLD IPHONE COPY
+If an old Home Screen icon still says V19.3 or V19.4, remove only that old icon. Open the new V19.5 production URL in Safari and add it to the Home Screen again.

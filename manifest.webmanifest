@@ -1,6 +1,6 @@
 {
-  "name": "GENEVIEVE App Food Stock Recipe Engine V19.2 Live Phone Scanner",
-  "short_name": "Food Scanner V19.2",
+  "name": "GENEVIEVE App Food Stock Recipe Engine V19.5 Live Phone Scanner",
+  "short_name": "Food Scanner V19.5",
   "description": "Live barcode scanner, food safety lights, stock, recipes, shopping and learning.",
   "start_url": "./index.html#home",
   "scope": "./",

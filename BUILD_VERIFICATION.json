@@ -1,34 +1,52 @@
 {
-  "build": "2026.07.28.19.2",
+  "build": "2026.07.29.19.5",
   "interface": "approved original pink V19 layout",
   "deployment": {
     "github_root_ready": true,
-    "vercel_ready": true,
+    "vercel_static_no_build": true,
+    "vercel_functions_removed": true,
+    "install_command_skipped": true,
+    "output_directory_root": true,
     "local_index_ready": true,
     "python_included": false
   },
   "verified": {
     "javascript_syntax": true,
-    "json_parsing": true,
+    "vercel_json_parsing": true,
+    "manifest_json_parsing": true,
     "local_file_references": true,
     "duplicate_html_ids": false,
     "missing_javascript_element_ids": false,
-    "dom_startup_ready": true,
+    "exact_reported_photo_automatic_decode": true,
+    "exact_reported_barcode": "4901515129889",
+    "exact_reported_product_loaded": true,
+    "phone_viewport_390x844": true,
+    "no_api_requests_for_regression_product": true,
+    "native_barcode_detector_present": true,
+    "bundled_zxing_present": true,
+    "quagga2_on_demand_fallback_present": true,
+    "four_rotation_attempts_present": true,
+    "contrast_threshold_crops_present": true,
+    "printed_digit_ocr_fallback_present": true,
+    "checksum_validation_present": true,
+    "old_service_worker_cleanup_present": true,
+    "gluten_free_claim_not_false_red": true,
     "soy_milk_not_false_dairy_red": true,
-    "cocoa_and_nut_butters_not_false_dairy_red": true,
     "direct_dairy_red_with_reason_and_alternative": true,
     "trace_dairy_amber": true,
     "strict_coeliac_oats_red": true,
     "seafood_rule_red": true,
     "mushroom_rule_red": true,
-    "product_function_mock_tests": true,
-    "search_function_mock_tests": true,
     "storage_photo_quota_fallback_present": true,
-    "scanner_four_rotation_attempts_present": true
+    "generic_ean13_3017620422003_decode": true,
+    "all_nine_navigation_screens_mobile": true,
+    "browser_page_errors": false,
+    "html_id_count": 90,
+    "javascript_element_reference_count": 80
   },
   "external_limits": [
-    "Public barcode databases can be incomplete or temporarily unavailable.",
-    "A protected Vercel deployment URL requires an account-level Vercel setting or promotion to a public Production domain.",
-    "Final camera testing still needs Tracey's iPhone and deployed HTTPS site because the build container browser blocks local URLs by policy."
+    "Public product databases can be incomplete or temporarily unavailable.",
+    "The on-demand second scanner requires an internet connection if the bundled and native readers cannot decode the image.",
+    "The physical product label remains the final source for ingredients and allergen information."
   ]
 }

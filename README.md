@@ -1,60 +1,47 @@
-# GENEVIEVE App™ Food Stock Recipe Engine V19.2
-## Original pink V19 repaired for computer, GitHub and Vercel
+# GENEVIEVE App™ Food Stock Recipe Engine V19.5
+## Original pink V19 — no-build Vercel repair and stronger iPhone photo scanner
 
-This package repairs the V19 scanner without replacing Tracey's approved interface.
+This package keeps Tracey's approved pink V19 interface while removing the Vercel server-function build that was delaying or failing deployment.
 
-## Fixed
+## What changed
 
-- Preserved the original pink V19 layout, navigation, stock, recipes, shopping, learning, alerts, rules and exports.
-- Preserved the original browser data key so compatible V19 data is not deliberately abandoned.
-- Bundled the barcode reader locally instead of relying on a barcode CDN during startup.
-- Delayed the optional ingredients OCR download until the OCR button is actually used, so a slow CDN cannot stop the app opening.
-- Added `/api/product.mjs` and `/api/search.mjs` as same-origin Vercel Functions.
-- Added two direct Open Food Facts fallbacks.
-- Added a browser product cache.
-- Removed the old dead-end timeout behaviour: a decoded barcode remains editable even if a public product record is missing or unavailable.
-- Added the missing **Reload product information** control.
-- Added a built-in reference for the photographed barcode `9300617433163` so the supplied Cadbury Flake test packet loads locally and online.
-- Replaced the risky catch-all Vercel rewrite with direct static routing.
-- Updated the service-worker cache so old broken V19 files are not deliberately reused.
-
-## Run on a computer
-
-Extract the ZIP, then double-click `index.html`.
-
-Core stock, recipe, shopping, learning, rules and export features work as local browser files. Online product lookup uses direct public-database fallbacks when the app is opened locally. On Vercel, the same-origin product function is attempted first.
+- Removed the `/api` folder and all Vercel Functions.
+- Added `vercel.json` overrides for Framework **Other**, no build command, no install command, and repository-root output.
+- Removed the service worker and clears older Genevieve Food caches so Safari does not keep using broken files.
+- Kept the bundled local ZXing barcode reader.
+- Kept native `BarcodeDetector` where supported.
+- Added Quagga2 as an on-demand second barcode reader after the local scanner fails.
+- Preserved four-direction rotation, crops, contrast, threshold, printed-number OCR and checksum checks.
+- Preserved successful recognition of Tracey's supplied Kikkoman barcode `4901515129889`.
+- Product lookup now uses direct Open Food Facts product endpoints, phone cache and manual correction instead of Vercel server functions.
 
 ## Upload to GitHub
 
-Upload the **contents** of the extracted folder to the repository root. Do not upload one enclosing folder.
+Extract the ZIP and upload the **contents** to the Food App repository root. Do not upload an enclosing V19.5 folder.
 
-The first repository page must show at least:
+The repository root must show:
 
 - `index.html`
 - `app.js`
 - `styles.css`
 - `vercel.json`
 - `manifest.webmanifest`
-- `api/`
 - `assets/`
 
-## Vercel settings
+The repository must not keep an old `api/` folder or `sw.js` file.
 
-- Framework Preset: **Other**
-- Root Directory: repository root / `./`
-- Install Command: blank
-- Build Command: blank
-- Output Directory: blank
-- Environment variables: none required
+## Vercel
+
+The included `vercel.json` overrides old project build settings. It publishes the repository root directly as a static website. No API key, npm install, package file, build command or server function is required.
 
 ## Safety
 
-This is decision support, not a guarantee of food safety. Always check the current physical packet because ingredients, allergens and manufacturing statements can change.
+This is decision support, not a guarantee of food safety. Always check the current physical label because ingredients, allergens and manufacturing statements can change.
 
-## Locked build rules
+## Locked rules
 
-- No Python.
-- No Vite, React or npm build.
+- No Python in the app.
+- Plain HTML, CSS and JavaScript.
 - GitHub and Vercel compatible.
 - Opens by double-clicking `index.html` on a computer.
-- Preserve the pink V19 interface unless Tracey explicitly authorises a redesign.
+- Preserve the pink V19 interface unless Tracey explicitly approves a redesign.
